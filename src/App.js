@@ -1,24 +1,29 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import TableDemoPage from './pages/TableDemoPage';
+
+function Home() {
+  return (
+    <div>
+      <h1>Welcome</h1>
+      <p>Navigate to the demo page:</p>
+      <Link to="/table-demo">Go to Table Demo</Link>
+    </div>
+  );
+}
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <nav style={{ margin: '1em 0' }}>
+        <Link to="/" style={{ marginRight: '1em' }}>Home</Link>
+        <Link to="/table-demo">Table Demo</Link>
+      </nav>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/table-demo" element={<TableDemoPage />} />
+      </Routes>
+    </Router>
   );
 }
 
