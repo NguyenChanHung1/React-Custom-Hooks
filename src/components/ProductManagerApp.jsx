@@ -1,33 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { useFetch } from '../hooks/network/useFetch';
-import { useForm } from '../hooks/form/useForm'; // Đảm bảo đường dẫn đúng
+import { useForm } from '../hooks/form/useForm'; 
 import { useProductCalculator } from '../hooks/adapters/useProductCalculator'; // Hook Adapter Pattern
 import { useProductTableRow } from '../hooks/ui/useProductTableRow'; // Hook Factory Pattern
 
 // Import validators
 import { required, minLength, isNumber, isPositive } from '../utils/validators';
 
-const PRODUCTS_JSON_PATH = "../data/products.json";
+const PRODUCTS_JSON_PATH = "https://raw.githubusercontent.com/NguyenChanHung1/React-Custom-Hooks/refs/heads/main/src/data/products.json";
 
 const ProductManagerApp = () => {
-    const { data: fetchedProducts } = useFetch(PRODUCTS_JSON_PATH);
-    // `managedProducts` là state mà chúng ta sẽ thêm/xóa sản phẩm
-    const [managedProducts, setManagedProducts] = useState([]);
+    const [managedProducts, setManagedProducts] = useFetch(PRODUCTS_JSON_PATH);
 
-    // Cập nhật managedProducts khi fetchedProducts được fetch xong
-    useEffect(() => {
-        if (fetchedProducts) {
-            setManagedProducts(fetchedProducts);
-        }
-    }, [fetchedProducts]);
-
-    // Adapter Pattern: Tính tổng và lấy danh sách sản phẩm đã được adapted
+    // Adapter Pattern: Tính tổng và lấy danh sách sản phẩm đã được adapted --- OK!
     const { totalProducts, totalPrice, adaptedProducts } = useProductCalculator(managedProducts);
 
-    // Factory Pattern: Quản lý trạng thái hàng được chọn
+    // Factory Pattern: Quản lý trạng thái hàng được chọn --- Need to apply another example
     const { selectedRowId, handleRowClick, isRowSelected, resetSelection } = useProductTableRow();
 
-    // Composition Pattern: useForm cho việc thêm sản phẩm
+    // Composition Pattern: useForm dung nhieu validators --- OK!
     const {
         formValues,
         handleChange,
@@ -77,9 +68,6 @@ const ProductManagerApp = () => {
         console.log(`Product with ID ${id} deleted.`);
         resetSelection();
     };
-
-    // if (isLoading) return <p>Đang tải danh sách sản phẩm...</p>;
-    // if (error) return <p style={{ color: 'red' }}>Lỗi khi tải sản phẩm: {error.message}</p>;
 
     return (
         <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
