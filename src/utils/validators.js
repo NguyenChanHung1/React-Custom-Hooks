@@ -19,3 +19,30 @@ export const isEmail = (value) => {
   }
   return null;
 };
+
+export const isNumber = (value) => {
+  if (value === null || value === undefined || value === '') {
+    return 'Trường này là bắt buộc và phải là số.';
+  }
+  if (isNaN(Number(value)) || !isFinite(Number(value))) {
+    return 'Phải là một số hợp lệ.';
+  }
+  return null;
+};
+
+export const isPositive = (value) => {
+  if (Number(value) < 0) {
+    return 'Giá trị phải là số dương.';
+  }
+  return null;
+};
+
+export const combineValidators = (...validators) => (value) => {
+  for (const validator of validators) {
+    const error = validator(value);
+    if (error) {
+      return error;
+    }
+  }
+  return null;
+};

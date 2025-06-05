@@ -1,0 +1,47 @@
+[
+    {
+        "productId": "PROD001",
+        "productName": "Laptop X1 Carbon",
+        "productDescription": "Ultra-light business laptop",
+        "itemPrice": 1200.00,
+        "quantityInStock": 50,
+        "productCategory": "Electronics",
+        "lastUpdateDate": "2024-05-10T10:00:00Z"
+    },
+    {
+        "productId": "PROD002",
+        "productName": "Mechanical Keyboard",
+        "productDescription": "Gaming keyboard with RGB lighting",
+        "itemPrice": 150.50,
+        "quantityInStock": 120,
+        "productCategory": "Accessories",
+        "lastUpdateDate": "2024-05-12T11:30:00Z"
+    },
+    {
+        "productId": "PROD003",
+        "productName": "Wireless Mouse",
+        "productDescription": "Ergonomic wireless mouse",
+        "itemPrice": 35.75,
+        "quantityInStock": 200,
+        "productCategory": "Accessories",
+        "lastUpdateDate": "2024-05-11T09:15:00Z"
+    },
+    {
+        "productId": "PROD004",
+        "productName": "External SSD 1TB",
+        "productDescription": "High-speed portable SSD",
+        "itemPrice": 99.99,
+        "quantityInStock": 80,
+        "productCategory": "Storage",
+        "lastUpdateDate": "2024-05-13T14:45:00Z"
+    },
+    {
+        "productId": "PROD005",
+        "productName": "Monitor 27-inch 4K",
+        "productDescription": "UHD display for professional use",
+        "itemPrice": 450.00,
+        "quantityInStock": 30,
+        "productCategory": "Electronics",
+        "lastUpdateDate": "2024-05-09T16:00:00Z"
+    }
+]

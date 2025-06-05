@@ -35,15 +35,17 @@ export const useValidation = (validators = {}) => {
             }
             if (fieldErrors.length > 0) {
                 isValid = false;
-            }
+            } 
             newErrors[fieldName] = fieldErrors.length > 0 ? fieldErrors : undefined;
         }
         setErrors(newErrors);
         return isValid;
     }, [validators]);
 
+    const validate_errors = errors;
+
     return {
-        errors,
+        validate_errors,
         validate,
         validateAll,
         setErrors 

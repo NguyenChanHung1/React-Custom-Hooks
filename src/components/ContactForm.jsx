@@ -6,7 +6,7 @@ const ContactForm = () => {
   const {
     formValues,
     handleChange,
-    errors,
+    validate_errors,
     isLoading,
     error: submitError, // Đổi tên để tránh trùng lặp
     isSuccess,
@@ -41,58 +41,61 @@ const ContactForm = () => {
   );
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label htmlFor="name">Tên:</label>
-        <input
-          type="text"
-          id="name"
-          name="name" // RẤT QUAN TRỌNG: Thêm thuộc tính `name` để `handleChange` hoạt động đúng
-          value={formValues.name}
-          onChange={handleChange}
-        />
-        {errors.name && errors.name.map((err, index) => (
-          <p key={index} style={{ color: 'red' }}>{err}</p>
-        ))}
-      </div>
+    <div>
+      <h2>Composition Design Pattern Demo - Form Validators</h2>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label htmlFor="name">Tên:</label>
+          <input
+            type="text"
+            id="name"
+            name="name" // RẤT QUAN TRỌNG: Thêm thuộc tính `name` để `handleChange` hoạt động đúng
+            value={formValues.name}
+            onChange={handleChange}
+          />
+          {validate_errors.name && validate_errors.name.map((err, index) => (
+            <p key={index} style={{ color: 'red' }}>{err}</p>
+          ))}
+        </div>
 
-      <div>
-        <label htmlFor="email">Email:</label>
-        <input
-          type="email"
-          id="email"
-          name="email" // RẤT QUAN TRỌNG: Thêm thuộc tính `name`
-          value={formValues.email}
-          onChange={handleChange}
-        />
-        {errors.email && errors.email.map((err, index) => (
-          <p key={index} style={{ color: 'red' }}>{err}</p>
-        ))}
-      </div>
+        <div>
+          <label htmlFor="email">Email:</label>
+          <input
+            type="email"
+            id="email"
+            name="email" // RẤT QUAN TRỌNG: Thêm thuộc tính `name`
+            value={formValues.email}
+            onChange={handleChange}
+          />
+          {validate_errors.email && validate_errors.email.map((err, index) => (
+            <p key={index} style={{ color: 'red' }}>{err}</p>
+          ))}
+        </div>
 
-      <div>
-        <label htmlFor="message">Tin nhắn:</label>
-        <textarea
-          id="message"
-          name="message" // RẤT QUAN TRỌNG: Thêm thuộc tính `name`
-          value={formValues.message}
-          onChange={handleChange}
-        ></textarea>
-        {errors.message && errors.message.map((err, index) => (
-          <p key={index} style={{ color: 'red' }}>{err}</p>
-        ))}
-      </div>
+        <div>
+          <label htmlFor="message">Tin nhắn:</label>
+          <textarea
+            id="message"
+            name="message" // RẤT QUAN TRỌNG: Thêm thuộc tính `name`
+            value={formValues.message}
+            onChange={handleChange}
+          ></textarea>
+          {validate_errors.message && validate_errors.message.map((err, index) => (
+            <p key={index} style={{ color: 'red' }}>{err}</p>
+          ))}
+        </div>
 
-      <button type="submit" disabled={isLoading || !isValid}>
-        {isLoading ? 'Đang gửi...' : 'Gửi'}
-      </button>
-      <button type="button" onClick={resetForm}>
-        Reset
-      </button>
+        <button type="submit" disabled={isLoading || !isValid}>
+          {isLoading ? 'Đang gửi...' : 'Gửi'}
+        </button>
+        <button type="button" onClick={resetForm}>
+          Reset
+        </button>
 
-      {submitError && <p style={{ color: 'red' }}>Lỗi gửi form: {submitError.message}</p>}
-      {isSuccess && <p style={{ color: 'green' }}>Gửi form thành công!</p>}
-    </form>
+        {submitError && <p style={{ color: 'red' }}>Lỗi gửi form: {submitError.message}</p>}
+        {isSuccess && <p style={{ color: 'green' }}>Gửi form thành công!</p>}
+      </form>
+    </div>
   );
 };
 

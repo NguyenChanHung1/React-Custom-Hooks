@@ -6,11 +6,11 @@ export const useForm = (initialValues = {}, validators = {}, onSubmit) => {
     const [formValues, setFormValues] = useState(initialValues);
 
     // useValidation
-    const { errors, validateAll, setErrors } = useValidation(validators);
+    const { validate_errors, validateAll, setErrors } = useValidation(validators);
 
     useEffect(() => {
-        validateAll(formValues);
-    }, [formValues, validateAll]);
+        validateAll(formValues); // eslint-disable-next-line
+    }, [formValues]);
 
     const handleChange = useCallback((event) => {
         const { name, value } = event.target;
@@ -20,7 +20,6 @@ export const useForm = (initialValues = {}, validators = {}, onSubmit) => {
         }));
     }, []);
 
-    // Callback để gọi khi submit form
     const formSubmitLogic = useCallback(async () => {
         const isValid = validateAll(formValues); // Validate lại lần cuối trước khi submit
         if (isValid) {
@@ -38,12 +37,12 @@ export const useForm = (initialValues = {}, validators = {}, onSubmit) => {
     }, [initialValues, setErrors]);
 
     // Kiểm tra tính hợp lệ của toàn bộ form dựa trên errors
-    const isValid = Object.values(errors).every(err => !err || err.length === 0);
+    const isValid = Object.values(validate_errors).every(err => !err || err.length === 0);
 
     return {
         formValues,
         handleChange, // Hàm handleChange để truyền vào input
-        errors,
+        validate_errors,
         isLoading,
         error, // Lỗi từ quá trình submit
         isSuccess,
