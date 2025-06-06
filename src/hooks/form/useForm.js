@@ -21,7 +21,7 @@ export const useForm = (initialValues = {}, validators = {}, onSubmit) => {
     }, []);
 
     const formSubmitLogic = useCallback(async () => {
-        const isValid = validateAll(formValues); // Validate lại lần cuối trước khi submit
+        const isValid = validateAll(formValues); 
         if (isValid) {
             await onSubmit(formValues);
         } else {
@@ -33,21 +33,20 @@ export const useForm = (initialValues = {}, validators = {}, onSubmit) => {
 
     const resetForm = useCallback(() => {
         setFormValues(initialValues);
-        setErrors({}); // Reset lỗi
+        setErrors({}); // Reset errors
     }, [initialValues, setErrors]);
 
-    // Kiểm tra tính hợp lệ của toàn bộ form dựa trên errors
     const isValid = Object.values(validate_errors).every(err => !err || err.length === 0);
 
     return {
         formValues,
-        handleChange, // Hàm handleChange để truyền vào input
+        handleChange, // onChange handler
         validate_errors,
         isLoading,
-        error, // Lỗi từ quá trình submit
+        error, // submit error
         isSuccess,
-        handleSubmit, // Hàm submit chính của form
+        handleSubmit, // onSubmit handler cua form
         resetForm,
-        isValid, // Trạng thái hợp lệ của form
+        isValid, // state cua form co valid hay ko
     };
 };

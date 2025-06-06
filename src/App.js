@@ -1,19 +1,19 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import ContactForm from './components/ContactForm';
-import StateDemo from './components/StateDemo';
+// import { BrowserRouter as Link } from 'react-router-dom';
+// import ContactForm from './components/ContactForm';
+// import StateDemo from './components/StateDemo';
 import ProductManagerApp from './components/ProductManagerApp';
 
-function Home() {
-  return (
-    <div>
-      <h1>Welcome</h1>
-      <p>Navigate to the demo page:</p>
-      <p><Link to="/form-demo">Go to Form Demo</Link></p>
-      <p><Link to="/state-demo">Go to State Demo</Link></p>
-    </div>
-  );
-}
+// function Home() {
+//   return (
+//     <div>
+//       <h1>Welcome</h1>
+//       <p>Navigate to the demo page:</p>
+//       <p><Link to="/form-demo">Go to Form Demo</Link></p>
+//       <p><Link to="/state-demo">Go to State Demo</Link></p>
+//     </div>
+//   );
+// }
 
 function App() {
   // return (

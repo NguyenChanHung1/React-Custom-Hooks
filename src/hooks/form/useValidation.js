@@ -17,7 +17,7 @@ export const useValidation = (validators = {}) => {
             ...prevErrors,
             [fieldName]: fieldErrors.length > 0 ? fieldErrors : undefined,
         }));
-        return fieldErrors.length === 0; // Trả về true nếu không có lỗi
+        return fieldErrors.length === 0; // Boolean
     }, [validators]);
 
     const validateAll = useCallback((formValues) => {

@@ -22,7 +22,7 @@ export const isEmail = (value) => {
 
 export const isNumber = (value) => {
   if (value === null || value === undefined || value === '') {
-    return 'Trường này là bắt buộc và phải là số.';
+    return 'Trường này bắt buộc phải là số.';
   }
   if (isNaN(Number(value)) || !isFinite(Number(value))) {
     return 'Phải là một số hợp lệ.';

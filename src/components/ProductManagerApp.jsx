@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useFetch } from '../hooks/network/useFetch';
-import { useForm } from '../hooks/form/useForm'; 
+import { useForm } from '../hooks/form/useForm'; // Composite
 import { useProductCalculator } from '../hooks/adapters/useProductCalculator'; // Hook Adapter Pattern
-import { useProductTableRow } from '../hooks/ui/useProductTableRow'; // Hook Factory Pattern
+import { useSortedProducts } from '../hooks/data/useSortedProducts'; // Hook Factory Pattern
+import { useFilteredProductsByCategory } from '../hooks/data/useFilteredProductsByCategory.js'; // Factory
+import { useFilteredProductsByMaxPrice } from '../hooks/data/useFilteredProductsByMaxPrice.js'; // Factory
 
 // Import validators
 import { required, minLength, isNumber, isPositive } from '../utils/validators';
@@ -12,13 +14,20 @@ const PRODUCTS_JSON_PATH = "https://raw.githubusercontent.com/NguyenChanHung1/Re
 const ProductManagerApp = () => {
     const [managedProducts, setManagedProducts] = useFetch(PRODUCTS_JSON_PATH);
 
-    // Adapter Pattern: Tính tổng và lấy danh sách sản phẩm đã được adapted --- OK!
+    // Adapter Pattern: lay danh sach duoc adapt voi interface co the giao tiep voi logic + tinh tong
     const { totalProducts, totalPrice, adaptedProducts } = useProductCalculator(managedProducts);
 
-    // Factory Pattern: Quản lý trạng thái hàng được chọn --- Need to apply another example
-    const { selectedRowId, handleRowClick, isRowSelected, resetSelection } = useProductTableRow();
+    // Factory Pattern: createDataProcessorHook tao ra cac hook filter va sort
+    const { processedData: filteredByCategoryProducts, updateConfig: updateCategoryFilter } =
+        useFilteredProductsByCategory(adaptedProducts);
 
-    // Composition Pattern: useForm dung nhieu validators --- OK!
+    const { processedData: filteredByPriceProducts, updateConfig: updatePriceFilter } =
+        useFilteredProductsByMaxPrice(filteredByCategoryProducts);
+
+    const { processedData: displayedProducts, config: sortConfig, updateConfig: updateSortConfig } =
+        useSortedProducts(filteredByPriceProducts); // Đây là danh sách cuối cùng sẽ hiển thị
+
+    // Composition Pattern: useValidation dung nhieu validators 
     const {
         formValues,
         handleChange,
@@ -46,13 +55,10 @@ const ProductManagerApp = () => {
             productCategory: [required],
             productDescription: [required]
         },
-        async (newProductRawData) => {
-            // Khi thêm sản phẩm mới, chúng ta tạo ra một đối tượng RawProductApiData
-            // và thêm vào managedProducts.
-            // useProductCalculator sẽ tự động adapted nó khi state managedProducts thay đổi.
+        async (newProductRawData) => { // onSubmit handler
             const newProductWithDefaults = {
                 ...newProductRawData,
-                lastUpdateDate: new Date().toISOString(), // Thêm ngày cập nhật
+                lastUpdateDate: new Date().toISOString(), // Them last update date
             };
 
             setManagedProducts(prevProducts => [...prevProducts, newProductWithDefaults]);
@@ -62,25 +68,71 @@ const ProductManagerApp = () => {
         }
     );
 
-    // Xóa sản phẩm
+    // Delete product using product ID
     const handleDeleteProduct = (id) => {
-        setManagedProducts(prevProducts => prevProducts.filter(p => p.productId !== id)); // Lưu ý: dùng productId gốc để xóa
+        setManagedProducts(prevProducts => prevProducts.filter(p => p.productId !== id)); 
         console.log(`Product with ID ${id} deleted.`);
-        resetSelection();
+    };
+
+    // Filter & Sort Handler
+    const handleCategoryFilterChange = (e) => {
+        updateCategoryFilter({ category: e.target.value });
+    };
+
+    const handleMaxPriceFilterChange = (e) => {
+        updatePriceFilter({ maxPrice: parseFloat(e.target.value) || Infinity });
+    };
+
+    const handleSortChange = (e) => {
+        updateSortConfig({ direction: e.target.value });
     };
 
     return (
         <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
             <h1>Product Manager App</h1>
 
-            {/* Thông tin tổng quát */}
             <div style={{ border: '1px solid #ccc', padding: '15px', marginBottom: '20px', borderRadius: '8px' }}>
                 <h2>Thống kê sản phẩm</h2>
                 <p>Tổng số sản phẩm trong kho: <strong>{totalProducts}</strong></p>
                 <p>Tổng giá trị các mặt hàng: <strong>${totalPrice.toFixed(2)}</strong></p>
             </div>
 
-            {/* Bảng hiển thị sản phẩm - SỬ DỤNG adaptedProducts */}
+            {/* Filter & Sort */}
+            <section style={{ marginBottom: '20px', border: '1px solid #eee', padding: '15px', borderRadius: '8px' }}>
+                <h2>Bộ lọc & Sắp xếp</h2>
+                <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
+                    <div>
+                        <label htmlFor="categoryFilter" style={{ marginRight: '5px' }}>Lọc theo danh mục:</label>
+                        <input
+                            type="text"
+                            id="categoryFilter"
+                            placeholder="e.g., Electronics"
+                            onChange={handleCategoryFilterChange}
+                            style={{ padding: '8px' }}
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="maxPriceFilter" style={{ marginRight: '5px' }}>Giá tối đa:</label>
+                        <input
+                            type="number"
+                            id="maxPriceFilter"
+                            placeholder="e.g., 200"
+                            onChange={handleMaxPriceFilterChange}
+                            style={{ padding: '8px' }}
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="sortOrder" style={{ marginRight: '5px' }}>Sắp xếp theo tên:</label>
+                        <select id="sortOrder" onChange={handleSortChange} value={sortConfig.direction} style={{ padding: '8px' }}>
+                            <option value="asc">Tăng dần (A-Z)</option>
+                            <option value="desc">Giảm dần (Z-A)</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+
+            {/* Bang hien thi san pham */}
             <section>
                 <h2>Danh sách sản phẩm</h2>
                 <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '20px' }}>
@@ -96,17 +148,16 @@ const ProductManagerApp = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {adaptedProducts.length === 0 ? (
+                        {displayedProducts.length === 0 ? (
                             <tr>
-                                <td colSpan="7" style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center' }}>Không có sản phẩm nào.</td>
+                                <td colSpan="7" style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center' }}>Không có sản phẩm nào phù hợp.</td>
                             </tr>
                         ) : (
-                            adaptedProducts.map((product) => ( // Lặp qua adaptedProducts
+                            displayedProducts.map((product) => ( 
                                 <tr
-                                    key={product.id} // Key dùng `product.id` (đã được adapted)
-                                    onClick={() => handleRowClick(product.id)}
+                                    key={product.id}
                                     style={{
-                                        backgroundColor: isRowSelected(product.id) ? '#e0f7fa' : 'white',
+                                        // backgroundColor: isRowSelected(product.id) ? '#e0f7fa' : 'white',
                                         cursor: 'pointer'
                                     }}
                                 >
@@ -120,12 +171,7 @@ const ProductManagerApp = () => {
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                // Để xóa, chúng ta cần `productId` gốc, không phải `id` đã adapted
-                                                // Dùng `managedProducts` để tìm `productId` tương ứng
-                                                const rawProductToDelete = managedProducts.find(p => p.productId === product.id);
-                                                if (rawProductToDelete) {
-                                                    handleDeleteProduct(rawProductToDelete.productId);
-                                                }
+                                                handleDeleteProduct(product.id);
                                             }}
                                             style={{ backgroundColor: '#ff4d4f', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}
                                         >
@@ -139,7 +185,7 @@ const ProductManagerApp = () => {
                 </table>
             </section>
 
-            {/* Form thêm sản phẩm (giữ nguyên vì nó tạo ra RawProductApiData) */}
+            {/* Form them san pham */}
             <section style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '8px', marginTop: '20px' }}>
                 <h2>Thêm sản phẩm mới</h2>
                 <form onSubmit={handleSubmit}>
