@@ -1,13 +1,13 @@
 import React from 'react';
 import { useFetch } from '../hooks/network/useFetch';
-import { useForm } from '../hooks/form/useForm'; // Composite
-import { useProductCalculator } from '../hooks/adapters/useProductCalculator'; // Hook Adapter Pattern
+import { useForm } from '../hooks/ui/form/useForm'; // Composite
+import { adaptProductForCalculation, useProductCalculator } from '../hooks/adapters/useProductCalculator'; // Hook Adapter Pattern
 import { useSortedProducts } from '../hooks/data/useSortedProducts'; // Hook Factory Pattern
 import { useFilteredProductsByCategory } from '../hooks/data/useFilteredProductsByCategory.js'; // Factory
 import { useFilteredProductsByMaxPrice } from '../hooks/data/useFilteredProductsByMaxPrice.js'; // Factory
-
-// Import validators
+import { useProductHighlight } from '../hooks/ui/form/useProductHighlight.js';
 import { required, minLength, isNumber, isPositive } from '../utils/validators';
+import { highlightHighPrice, highlightCategory, highlightLowStock } from '../utils/highlightStrategies.js';
 
 const PRODUCTS_JSON_PATH = "https://raw.githubusercontent.com/NguyenChanHung1/React-Custom-Hooks/refs/heads/main/src/data/products.json";
 
@@ -15,7 +15,7 @@ const ProductManagerApp = () => {
     const [managedProducts, setManagedProducts] = useFetch(PRODUCTS_JSON_PATH);
 
     // Adapter Pattern: lay danh sach duoc adapt voi interface co the giao tiep voi logic + tinh tong
-    const { totalProducts, totalPrice, adaptedProducts } = useProductCalculator(managedProducts);
+    const { totalProducts, totalPrice, adaptedProducts } = useProductCalculator(managedProducts, adaptProductForCalculation);
 
     // Factory Pattern: createDataProcessorHook tao ra cac hook filter va sort
     const { processedData: filteredByCategoryProducts, updateConfig: updateCategoryFilter } =
@@ -25,7 +25,66 @@ const ProductManagerApp = () => {
         useFilteredProductsByMaxPrice(filteredByCategoryProducts);
 
     const { processedData: displayedProducts, config: sortConfig, updateConfig: updateSortConfig } =
-        useSortedProducts(filteredByPriceProducts); // Đây là danh sách cuối cùng sẽ hiển thị
+        useSortedProducts(filteredByPriceProducts); 
+
+    const validators = { // validators
+        productId: [required, minLength(3)],
+        productName: [required, minLength(5)],
+        itemPrice: [required, isNumber, isPositive],
+        quantityInStock: [required, isNumber, isPositive],
+        productCategory: [required],
+        //productDescription: [required]
+    };
+
+    const [highlightedProducts, highlightConfig,
+        setHighlightConfig
+    ] = useProductHighlight(
+        displayedProducts, 
+        null,
+        null 
+    );
+
+    // Strategy pattern: this is for demo
+    const handleHighlightStrategyChange = (e) => {
+        const selectedStrategy = e.target.value;
+        if (selectedStrategy === 'lowStock') {
+            setHighlightConfig({
+                strategy: highlightLowStock,
+                config: { threshold: 10 } 
+            })
+        } else if (selectedStrategy === 'highPrice') {
+            setHighlightConfig({
+                strategy: highlightHighPrice,
+                config: { minPrice: 100.00 }
+            });
+        } else if (selectedStrategy === 'category') {
+            setHighlightConfig({
+                strategy: highlightCategory,
+                config: { category: 'Electronics' } 
+            });
+        }
+    }
+
+    const handleConfigInputChange = (e) => {
+        const configInput = e.target.value;
+        if (highlightConfig.strategy === highlightLowStock) {
+            setHighlightConfig({
+                strategy: highlightLowStock,
+                config: { threshold: (configInput ? parseInt(configInput, 10) : 10) } // Default threshold is 10
+            });
+        }
+        else if (highlightConfig.strategy === highlightHighPrice) {
+            setHighlightConfig({
+                strategy: highlightHighPrice,
+                config: { minPrice: (configInput ? parseFloat(configInput) : 100.00) } // Default min price is 100.00
+            });
+        } else if (highlightConfig.strategy === highlightCategory) {
+            setHighlightConfig({
+                strategy: highlightCategory,
+                config: { category: configInput || 'Electronics' } // Default category is 'Electronics'
+            });
+        }
+    }
 
     // Composition Pattern: useValidation dung nhieu validators 
     const {
@@ -39,7 +98,7 @@ const ProductManagerApp = () => {
         resetForm,
         isValid
     } = useForm(
-        {
+        { // initial values
             productId: '',
             productName: '',
             productDescription: '',
@@ -47,14 +106,7 @@ const ProductManagerApp = () => {
             quantityInStock: '',
             productCategory: '',
         },
-        {
-            productId: [required, minLength(3)],
-            productName: [required, minLength(5)],
-            itemPrice: [required, isNumber, isPositive],
-            quantityInStock: [required, isNumber, isPositive],
-            productCategory: [required],
-            productDescription: [required]
-        },
+        validators,
         async (newProductRawData) => { // onSubmit handler
             const newProductWithDefaults = {
                 ...newProductRawData,
@@ -91,6 +143,18 @@ const ProductManagerApp = () => {
         <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
             <h1>Product Manager App</h1>
 
+            <section>
+                <h2>Highlight sản phẩm</h2>
+                <select onChange={handleHighlightStrategyChange}>
+                    <option value="lowStock">Kho còn ít sản phẩm</option>
+                    <option value="highPrice">Giá cao</option>
+                    <option value="category">Theo loại sản phẩm</option>
+                </select>
+                <input style={{ marginLeft: '10px', padding: '8px' }}
+                    type="text" 
+                    onChange={handleConfigInputChange}/>
+            </section>
+            <br></br>
             <div style={{ border: '1px solid #ccc', padding: '15px', marginBottom: '20px', borderRadius: '8px' }}>
                 <h2>Thống kê sản phẩm</h2>
                 <p>Tổng số sản phẩm trong kho: <strong>{totalProducts}</strong></p>
@@ -153,11 +217,11 @@ const ProductManagerApp = () => {
                                 <td colSpan="7" style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center' }}>Không có sản phẩm nào phù hợp.</td>
                             </tr>
                         ) : (
-                            displayedProducts.map((product) => ( 
+                            highlightedProducts.map((product) => ( 
                                 <tr
                                     key={product.id}
                                     style={{
-                                        // backgroundColor: isRowSelected(product.id) ? '#e0f7fa' : 'white',
+                                        backgroundColor: product.isHighlighted ? '#ffeb3b' : 'white',
                                         cursor: 'pointer'
                                     }}
                                 >
