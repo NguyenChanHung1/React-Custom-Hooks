@@ -65,6 +65,9 @@ const ProductManagerApp = () => {
         }
     }
 
+    //
+    
+
     const handleConfigInputChange = (e) => {
         const configInput = e.target.value;
         if (highlightConfig.strategy === highlightLowStock) {
@@ -145,12 +148,12 @@ const ProductManagerApp = () => {
 
             <section>
                 <h2>Highlight sản phẩm</h2>
-                <select onChange={handleHighlightStrategyChange}>
+                <select onChange={handleHighlightStrategyChange} aria-label='highlight'>
                     <option value="lowStock">Kho còn ít sản phẩm</option>
                     <option value="highPrice">Giá cao</option>
                     <option value="category">Theo loại sản phẩm</option>
                 </select>
-                <input style={{ marginLeft: '10px', padding: '8px' }}
+                <input style={{ marginLeft: '10px', padding: '8px' }} aria-label='highlight-text'
                     type="text" 
                     onChange={handleConfigInputChange}/>
             </section>
@@ -163,7 +166,7 @@ const ProductManagerApp = () => {
 
             {/* Filter & Sort */}
             <section style={{ marginBottom: '20px', border: '1px solid #eee', padding: '15px', borderRadius: '8px' }}>
-                <h2>Bộ lọc & Sắp xếp</h2>
+                <h2>Lọc & Sắp xếp</h2>
                 <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
                     <div>
                         <label htmlFor="categoryFilter" style={{ marginRight: '5px' }}>Lọc theo danh mục:</label>
@@ -187,7 +190,7 @@ const ProductManagerApp = () => {
                     </div>
                     <div>
                         <label htmlFor="sortOrder" style={{ marginRight: '5px' }}>Sắp xếp theo tên:</label>
-                        <select id="sortOrder" onChange={handleSortChange} value={sortConfig.direction} style={{ padding: '8px' }}>
+                        <select id="sortOrder" onChange={handleSortChange} value={sortConfig.direction} style={{ padding: '8px' }} aria-label='processing'>
                             <option value="asc">Tăng dần (A-Z)</option>
                             <option value="desc">Giảm dần (Z-A)</option>
                         </select>

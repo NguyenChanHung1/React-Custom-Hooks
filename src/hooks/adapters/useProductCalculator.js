@@ -9,12 +9,14 @@ export const adaptProductForCalculation = (rawProduct) => {
         price: parseFloat(rawProduct.itemPrice), 
         stock: parseInt(rawProduct.quantityInStock, 10), 
         category: rawProduct.productCategory, 
-        lastUpdated: new Date(rawProduct.lastUpdateDate).toLocaleString(), 
+        lastUpdated: new Date(rawProduct.lastUpdateDate).toLocaleString("en-US", {
+            hour12: true, 
+            timeZone: "UTC" 
+        }), 
     };
 };
 
 export const useProductCalculator = (products, adapterFunction) => {
-    // Sử dụng useMemo để chỉ tính toán lại khi products thay đổi
     const { totalProducts, totalPrice, adaptedProducts } = useMemo(() => {
         let sumProducts = 0;
         let sumPrice = 0;
@@ -24,7 +26,6 @@ export const useProductCalculator = (products, adapterFunction) => {
             products.forEach(rawProduct => {
                 const adaptedProduct = adapterFunction(rawProduct); 
                 adaptedList.push(adaptedProduct); 
-
                 
                 sumProducts += adaptedProduct.stock;
                 sumPrice += adaptedProduct.price * adaptedProduct.stock;
