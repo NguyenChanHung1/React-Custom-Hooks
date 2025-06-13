@@ -1,5 +1,5 @@
-import { renderHook, act } from '@testing-library/react';
-import { useSortedProducts } from '../useSortedProducts'; // Đảm bảo đường dẫn đúng
+import { renderHook, act } from '@testing-library/react-hooks';
+import { useSortedProducts } from '../useSortedProducts';
 
 describe('useSortedProducts (Factory Pattern Product)', () => {
     const mockProducts = [
@@ -33,6 +33,6 @@ describe('useSortedProducts (Factory Pattern Product)', () => {
 
     it('should maintain original order if data is not an array', () => {
         const { result } = renderHook(() => useSortedProducts(null));
-        expect(result.current.processedData).toEqual([]); // Should return empty array for non-array input
+        expect(result.current.processedData).toEqual([]); // Should return empty array 
     });
 });

@@ -44,7 +44,7 @@ const ProductManagerApp = () => {
         null 
     );
 
-    // Strategy pattern: this is for demo
+    // Strategy pattern: demo
     const handleHighlightStrategyChange = (e) => {
         const selectedStrategy = e.target.value;
         if (selectedStrategy === 'lowStock') {
